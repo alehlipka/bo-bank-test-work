@@ -1,0 +1,63 @@
+networks:
+  default:
+    name: laravel
+
+services:
+  nginx:
+    container_name: nginx
+    image: nginx:stable-alpine
+    ports:
+      - "${NGINX_FORWARD_PORT:-80}:80"
+    volumes:
+      - ./config/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./src:/home/dev/apps/bank
+    depends_on:
+      - php
+      - redis
+      - postgresql
+    restart: unless-stopped
+  
+  postgresql:
+    container_name: postgresql
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      PGDATA: /data/postgres
+      TZ: Europe/Minsk
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d ${DB_DATABASE} -U ${DB_USERNAME}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "${DB_FORWARD_PORT:-5432}:5432"
+    volumes:
+      - ./volumes/postgresql:/data/postgres
+    restart: unless-stopped
+  
+  php:
+    container_name: php
+    build:
+      context: .
+      dockerfile: php.dockerfile
+    ports:
+      - "${PHP_FORWARD_PORT:-9000}:9000"
+    volumes:
+      - ./src:/home/dev/apps/bank
+      - ./config/php/custom.ini:/usr/local/etc/php/conf.d/custom.ini
+    restart: unless-stopped
+
+  redis:
+    container_name: redis
+    image: redis:alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      retries: 3
+      timeout: 5s
+    ports:
+      - "${REDIS_FORWARD_PORT:-6379}:6379"
+    volumes:
+      - ./volumes/redis:/data
+    restart: unless-stopped
