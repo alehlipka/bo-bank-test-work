@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Actions\UserDepositAction;
-use App\Http\Actions\UserUpdateAction;
+use App\Actions\UserDepositAction;
+use App\Actions\UserUpdateAction;
 use App\Http\Requests\UserDepositRequest;
 use App\Http\Requests\UserUpdateRequest;
 use App\Http\Resources\UserResource;

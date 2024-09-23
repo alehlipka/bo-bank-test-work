@@ -22,8 +22,8 @@ class TransferStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'sender_id' => 'required|exists:users,id',
-            'receiver_id' => 'required|exists:users,id',
+            'sender_id' => 'required|integer',
+            'receiver_id' => 'required|integer',
             'amount' => 'required|numeric|min:' . config('transfer.min_amount', 0.01),
         ];
     }
