@@ -24,12 +24,16 @@ RUN apk add --no-cache \
   oniguruma-dev \
   curl-dev \
   freetype-dev \
-  libpq-dev
+  libpq-dev \
+  icu-dev
 
 RUN docker-php-ext-install pgsql pdo pdo_pgsql mbstring exif zip soap pcntl bcmath curl zip opcache
 
 RUN docker-php-ext-configure gd --enable-gd --with-freetype --with-jpeg \
   && docker-php-ext-install -j$(nproc) gd
+
+RUN docker-php-ext-configure intl \
+  && docker-php-ext-install intl
 
 RUN apk --no-cache add pcre-dev ${PHPIZE_DEPS} && pecl install redis && docker-php-ext-enable redis
 
